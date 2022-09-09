@@ -1,7 +1,4 @@
 # RADI603
-<<<<<<< HEAD
-Repository of assignments and notes from my RAADI603 class
-=======
 Assignment
 
 The emergence of infectious diseases with pandemic potential has served as a wake-up call to various governments across the globe. Througout human history, the biological threat of a pandemic disease has been devastating on an unprecedented scale, as evidenced by diseases such as COVID-19, influenza, and the bubonic plague. Because of these risks, the rapid spread of the Monkeypox disease this year has posed another global threat during COVID-19 pandemic. The Monkeypox, primarily caused by the monkeypox virus, is an infectious zoonotic disease which is closely related to smallpox but with milder infection. The World Health Organization (WHO) already declared the Monkeypox outbreak an international public health emergency, citing with a staggering increase of 30,000 cases worldwide. While the WHO has not declared the monkeypox oubreak a pandemic, several epidemiologists have highlighted the severity of monkeypox disease infection among the human population.
@@ -73,12 +70,11 @@ We can adopt the Euler's method to approximate the systems of equations above. L
 \end{equation*}
 
 Therefore, equations derived using Euler's method are expressed in Equation 7:
-\begin{equation*}
+\begin{equation}
 \begin{aligned}
     S_{t+1}         &= S_t - \beta S_tI_t \\
     I_{t+1} &= I_t(1 + \beta S_t - \gamma -\nu)\\
     R_{t+1} &= R_t + \gamma I_t
     \tag{7}
 \end{aligned}
-\end{equation*}
->>>>>>> f529e95ee4035e2cf2d8fb08ebdbf08b19e8d7a1
+\end{equation}
