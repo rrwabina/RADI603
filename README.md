@@ -71,9 +71,9 @@ We can adopt the Euler's method to approximate the systems of equations above. L
 
 Therefore, equations derived using Euler's method are expressed in Equation 7:
 
-\begin{align}
-    S_{t+1}         &= S_t - \beta S_tI_t \\
-    I_{t+1} &= I_t(1 + \beta S_t - \gamma -\nu)\\
-    R_{t+1} &= R_t + \gamma I_t
+\begin{align*}
+    S_{t+1} & = S_t - \beta S_tI_t \\
+    I_{t+1} & = I_t(1 + \beta S_t - \gamma -\nu)\\
+    R_{t+1} & = R_t + \gamma I_t
     \tag{7}
-\end{align}
+\end{align*}
