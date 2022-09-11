@@ -1,0 +1,427 @@
+\documentclass[a4paper,12pt]{article} % This defines the style of your paper
+\usepackage[top = 2.5cm, bottom = 2.5cm, left = 2cm, right = 2cm]{geometry} 
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{multirow} % Multirow is for tables with multiple rows within one cell.
+\usepackage{booktabs} % For even nicer tables.
+\usepackage{graphicx} 
+\usepackage{setspace}
+\usepackage{amsmath}
+\setlength{\parindent}{0in}
+\usepackage{float}
+\usepackage{fancyhdr}
+\pagestyle{fancy} 
+\fancyhf{} 
+\lhead{\footnotesize RADI603}
+\rhead{\footnotesize WABINA, Romen Samuel Rodis} 
+\cfoot{\footnotesize \thepage} 
+\begin{document}
+\thispagestyle{empty} % This command disables the header on the first page. 
+
+\begin{tabular}{p{15.5cm}} % This is a simple tabular environment to align your text nicely 
+{\large \bf RADI603: Medical Statistics and Programming for Data Science and Clinical Informatics} \\
+Mahidol University \\ Faculty of Medicine - Ramathibodi Hospital \\ Department of Clinical Epidemiology and Biostatistics  \\ 
+\hline 
+\\
+\end{tabular}
+\begin{center}
+	{\Large \bf Assignment II: Vector Assignments} 
+	\vspace{2mm} \\
+	{\bf Romen Samuel Rodis Wabina} 	
+\end{center}  
+
+This homework answers the problem set sequentially. 
+\begin{enumerate}
+\item{Please find the below items if it is valid}
+\item{Given the vectors: $\vec{A} = (5, 10, 12, 9)$, $\vec{B} = (1, 2, 3, 4)$, $\vec{C} = (3, 1, 9, 3)$, and $\vec{D} = (4, 2, 3, 1)$, find the following vectors.}
+
+% \begin{enumerate}
+%     \item{$\vec{A} \cdot \vec{B}$} \\
+%     \begin{equation*}
+%     \begin{aligned}
+%         $\vec{A} \cdot \vec{B} = (5, 10, 12, 9) \cdot (1, 2, 3, 4)$ \\
+%         $& = (5)(1) + (10)(2)$
+%     \end{aligned}
+%     \end{equation*}
+% \end{enumerate}
+\begin{enumerate}
+
+\item
+$ \!
+\begin{aligned}[t]
+    \vec{A} \cdot \vec{B} &= (5, 10, 12, 9) \cdot (1, 2, 3, 4) \\ 
+    &= (5)(1) + (10)(2) + (12)(3) + (9)(4) \\
+    &= 5 + 20 + 36 + 36 \\
+    \vec{A} \cdot \vec{B} &= 97  
+\end{aligned}
+$
+\hfill \break \hfill \break 
+
+
+\item
+$ \!
+\begin{aligned}[t]
+    \vec{C} \cdot \vec{D} &= (3, 1, 9, 3) \cdot (4, 2, 3, 1) \\ 
+    &= (3)(4) + (1)(2) + (9)(3) + (3)(1) \\
+    &= 12 + 2 + 27 + 3 \\
+    \vec{C} \cdot \vec{D} &= 44  
+\end{aligned}
+$
+\hfill \break \hfill \break 
+
+
+\item
+$ \!
+\begin{aligned}[t]
+    \vec{A} \cdot (\vec{B} + \vec{C}) &= (5, 10, 12, 9) \cdot \left((1, 2, 3, 4) + (3, 1, 9, 3)\right) \\ 
+    &= (5, 10, 12, 9) \cdot \left( 1 + 3, 2 + 1, 3 + 9, 4 + 3\right) \\
+    &= (5, 10, 12, 9) \cdot (4, 3, 12, 7) \\
+    &= (5)(4) + (10)(3) + (12)(12) + (9)(7) = 20 + 30 + 144 + 63 \\
+    \vec{A} \cdot (\vec{B} + \vec{C}) &= 257  
+\end{aligned}
+$
+\hfill \break \hfill \break 
+
+
+\item
+$ \!
+\begin{aligned}[t]
+    (\vec{A} \cdot \vec{B}) +(\vec{C} \cdot \vec{D}) &= ((5, 10, 12, 9) \cdot (1, 2, 3, 4)) + ((3, 1, 9, 3) \cdot (4, 2, 3, 1)) \\
+    &= ((5)(1)+(10)(2)+(12)(3)+(9)(4)) + ((3)(4)+(1)(2)+(9)(3)+(3)(1)) \\
+    &= 5 + 20 + 36 + 36 + 12 + 2 + 27 + 3 \\
+    (\vec{A} \cdot \vec{B}) +(\vec{C} \cdot \vec{D}) &= 141
+\end{aligned}
+$
+\hfill \break \hfill \break 
+
+
+
+\item
+$ \!
+\begin{aligned}[t]
+    2\vec{A} \cdot (\vec{D} + \vec{C}) &= 2 \cdot (5, 10, 12, 9) \cdot ((4, 2, 3, 1) + (3, 1, 9, 3)) \\
+    &= ((2)(5), (2)(10), (2)(12), (2)(9)) \cdot (4 + 3, 2 + 1, 3 + 9, 1 + 3) \\
+    &= (10, 20, 24, 18) \cdot (7, 3, 12, 4) \\
+    &= (10)(7) + (20)(3) + (24)(12) + (18)(4) \\
+    &= 70 + 60 + 288 + 72 \\
+    2\vec{A} \cdot (\vec{D} + \vec{C}) &= 490
+\end{aligned}
+$
+\hfill \break \hfill \break 
+\end{enumerate}
+
+\item{Are the vectors linearly independent?} \\
+\\
+Let $v_1, v_2, \hdots, v_n$ be vectors in $\mathbf{R}^n$. Let $v_i = (v_{i1}, v_{i2}, \hdots, v_{in})$. Then the vectors are linearly independent if and only if the determinant of the matrix $A = [v_{ij}]_{n \times n} \neq 0$. Otherwise, the vectors are linearly dependent if the determinant of the matrix $A = [v_{ij}]_{n \times n} = 0$.
+
+\begin{enumerate}
+\item
+$ \!
+    \vec{A_1} = \begin{bmatrix}
+                3 \\
+                5 \\
+                1
+              \end{bmatrix},
+    \vec{A_2} = \begin{bmatrix}
+                4 \\
+                2 \\
+                4
+              \end{bmatrix},
+    \vec{A_3} = \begin{bmatrix}
+                2 \\
+                3 \\
+                1
+              \end{bmatrix} \\
+    \hfill \break \hfill \break 
+    \det \vec{A} = \begin{bmatrix}
+                3  & 4 & 2 \\
+                5  & 2 & 3 \\
+                -1 & 4 & 1
+              \end{bmatrix} 
+                =
+              \begin{bmatrix}
+                3  & 4 & 2 &  3 & 4 \\
+                5  & 2 & 3 &  5 & 2 \\
+                -1 & 4 & 1 & -1 & 4
+              \end{bmatrix} \\    
+    \det \vec{A} = (3)(2)(1) + (4)(3)(-1) + (2)(5)(4) - \left[ (-1)(2)(2) + (4)(3)(3) + (1)(5)(4) \right] \\
+    \det \vec{A} = 6 - 12 + 40 - (-4 + 36 + 20) \\
+    \det \vec{A} = -18.00
+$
+\hfill \break \hfill \break 
+
+\item
+$ \!
+    \vec{A_1} = \begin{bmatrix}
+                -5 \\
+                -10 \\
+                -70
+              \end{bmatrix},
+    \vec{A_2} = \begin{bmatrix}
+                -50 \\
+                -2 \\
+                -30
+              \end{bmatrix},
+    \vec{A_3} = \begin{bmatrix}
+                -20 \\
+                -30 \\
+                -50
+              \end{bmatrix} \\
+    \hfill \break \hfill \break 
+    \det \vec{A} = \begin{bmatrix}
+                 -5 & -50 & -20 \\
+                -10 &  -2 & -30 \\
+                -70 & -30 & -50
+              \end{bmatrix} 
+                =
+              \begin{bmatrix}
+                 -5 & -50 & -20 &  -5 & -50 \\
+                -10 &  -2 & -30 & -10 &  -2 \\
+                -70 & -30 & -50 & -70 & -30
+              \end{bmatrix} \\    
+    \det \vec{A} = -500 - 105000 - 600 + 2800 + 4500 + 25000 \\
+    \det \vec{A} = -79200.0
+$
+\hfill \break \hfill \break 
+
+\item
+$ \!
+    \vec{A_1} = \begin{bmatrix}
+                2 \\
+                -1 \\
+                3
+              \end{bmatrix},
+    \vec{A_2} = \begin{bmatrix}
+                -6 \\
+                3 \\
+                -9
+              \end{bmatrix},
+    \vec{A_3} = \begin{bmatrix}
+                10 \\
+                -5 \\
+                15
+              \end{bmatrix} \\
+    \hfill \break \hfill \break 
+    \det \vec{A} = \begin{bmatrix}
+                 2 & -6 & 10 \\
+                -1 &  3 & -5 \\
+                 3 & -9 & 15
+              \end{bmatrix} 
+                =
+              \begin{bmatrix}
+                 2 & -6 & 10 &  2 & -6 \\
+                -1 &  3 & -5 & -1 &  3 \\
+                 3 & -9 & 15 &  3 & -9 \\
+              \end{bmatrix} \\     
+    \det \vec{A} = 90 + 90 + 90 - (90 + 90 + 90) \\
+    \det \vec{A} = 0
+$
+\end{enumerate}
+
+\item{What is the rank of the following vectors?} \\
+\begin{enumerate}
+\item
+$ \!
+    \vec{A_1} = \begin{bmatrix}
+                3 \\
+                5 \\
+                -1
+              \end{bmatrix},
+    \vec{A_2} = \begin{bmatrix}
+                4 \\
+                2 \\
+                4
+              \end{bmatrix},
+    \vec{A_3} = \begin{bmatrix}
+                2 \\
+                3 \\
+                1
+              \end{bmatrix} \\
+    \hfill \break \hfill \break 
+    \textbf{rank} ({A}) = \begin{bmatrix}
+                3  & 4 & 2 \\
+                5  & 2 & 3 \\
+                -1 & 4 & 1
+              \end{bmatrix} 
+              R_2 - \frac{5}{3}R_1 \rightarrow R_2 
+              \begin{bmatrix}
+                3  & 4 & 2  \\
+                0  & \frac{-14}{3} & \frac{-1}{3}  \\
+                -1 & 4 & 1 
+              \end{bmatrix} 
+              R_3 - \frac{-1}{3}R_1 \rightarrow R_3 \\ 
+    \hfill \break \hspace*{20.5mm}
+              \begin{bmatrix}
+                3  & 4 & 2  \\
+                0  & \frac{-14}{3} & \frac{-1}{3}  \\
+                0 &  \frac{16}{3}  & \frac{5}{3}
+              \end{bmatrix} 
+              R_3 + \frac{8}{7}R_2 \rightarrow R_3 
+              \begin{bmatrix}
+                3  & 4 & 2  \\
+                0  & \frac{-14}{3} & \frac{-1}{3}  \\
+                0 &  0  & \frac{9}{7}
+              \end{bmatrix}\\ 
+$
+\hfill \break \hfill \break
+Since there are three non-zero rows in the row-echelon form, hence, rank(A) = 3.
+
+
+\item
+$ \!
+    \vec{A_1} = \begin{bmatrix}
+                -5 \\
+                -10 \\
+                -70
+              \end{bmatrix},
+    \vec{A_2} = \begin{bmatrix}
+                -50 \\
+                -2 \\
+                -30
+              \end{bmatrix},
+    \vec{A_3} = \begin{bmatrix}
+                -20 \\
+                -30 \\
+                -50
+              \end{bmatrix} \\
+    \hfill \break \hfill \break 
+    \textbf{rank} ({A}) = \begin{bmatrix}
+                -5 & -50 & -20 \\
+                -10 &  -2 & -30 \\
+                -70 & -30 & -50
+              \end{bmatrix} 
+              R_2 - 2R_1 \rightarrow R_2 
+              \begin{bmatrix}
+                -5  & -50 & -20 \\
+                0   &  98 &  10 \\
+                -70 & -30 & -50
+              \end{bmatrix} 
+              R_3 - 14R_1 \rightarrow R_3 \\ 
+    \hfill \break \hspace*{20.5mm}
+              \begin{bmatrix}
+                -5  & -50 & -20 \\
+                0   &  98 &  10 \\
+                0   & 670 & 230
+              \end{bmatrix} 
+              R_3 - \frac{335}{49}R_2 \rightarrow R_3 
+              \begin{bmatrix}
+                -5  & -50 & -20 \\
+                0   &  98 &  10 \\
+                0   &   0 & \frac{7920}{49}
+              \end{bmatrix}\\ 
+$
+\hfill \break \hfill \break
+Since there are three non-zero rows in the row-echelon form, hence, rank(A) = 3.
+
+
+
+\item
+$ \!
+    \vec{A_1} = \begin{bmatrix}
+                2 \\
+                -1 \\
+                3
+              \end{bmatrix},
+    \vec{A_2} = \begin{bmatrix}
+                -6 \\
+                3 \\
+                -9
+              \end{bmatrix},
+    \vec{A_3} = \begin{bmatrix}
+                10 \\
+                -5 \\
+                15
+              \end{bmatrix} \\
+    \hfill \break \hfill \break 
+    \textbf{rank} ({A}) = \begin{bmatrix}
+                2 & -6 & 10 \\
+                -1 &  3 & -5 \\
+                 3 & -9 & 15
+              \end{bmatrix} 
+              R_2 + \frac{1}{2}R_1 \rightarrow R_2 
+              \begin{bmatrix}
+                 2 & -6 & 10  \\
+                 0 &  0 &  0  \\
+                 3 & -9 & 15
+              \end{bmatrix} 
+              R_3 - \frac{3}{2}R_1 \rightarrow R_3 \\ 
+    \hfill \break \hspace*{20.5mm}
+              \begin{bmatrix}
+                2 & -6 & 10  \\
+                 0 &  0 &  0  \\
+                 0 &  0 &  0
+              \end{bmatrix} 
+$
+\hfill \break \hfill \break
+Since there are only one non-zero row in the row-echelon form, hence, rank(A) = 1.
+\end{enumerate}
+
+
+\item{Determine the angle between the following vectors.}
+
+\begin{enumerate}
+
+\item
+$ \!
+\vec{a} = (3, -4, -1)$ and $\vec{b} = (0, 5, 2) \\ 
+\text{Since $a$ or $b$ are non-zero vectors, then $\vec{a} \cdot \vec{b} &= \lVert \vec{a} \rVert \cdot \lVert \vec{b} \rVert \cdot \cos{\theta}$}
+\hfill \break\hfill \break 
+\begin{aligned}[t]
+    \vec{a} \cdot \vec{b} &= \lVert \vec{a} \rVert \cdot \lVert \vec{b} \rVert \cdot \cos{\theta} \\
+    (3, -4, -1) \cdot (0, 5, 2) &= \lVert (3, -4, -1)  \rVert \cdot \lVert (0, 5, 2)  \rVert \cdot \cos{\theta} \\
+    (3)(0) + (-4)(5) + (-1)(2)  &= \left[ \sqrt{3^2 + (-4)^2 + (-1)^2} \cdot \sqrt{0^2 + (5)^2 + (2)^2} \right] \cdot \cos{\theta} \\
+    -22 &= 27.45906043549196 \cdot \cos{\theta} \\
+    \frac{-22}{27.45906043549196} &= \cos{\theta} \\
+    \theta &= \cos^{-1}{\frac{-22}{27.45906043549196}} \\
+    \theta &= 2.5 \text{\hspace{2mm} (radians)} \\
+    \theta &= 2.5 \cdot \frac{180}{\pi} \\
+    \theta &= 143.24 \text{\hspace{2mm} (degrees)}
+    
+\end{aligned}
+$
+\hfill \break \hfill \break 
+
+
+\item
+$ \!
+\vec{a} = (1, 1, 1)$ and $\vec{b} = (3, 3, 3) \\ 
+\text{Since $a$ or $b$ are non-zero vectors, then $\vec{a} \cdot \vec{b} &= \lVert \vec{a} \rVert \cdot \lVert \vec{b} \rVert \cdot \cos{\theta}$}
+\hfill \break\hfill \break 
+\begin{aligned}[t]
+    \vec{a} \cdot \vec{b} &= \lVert \vec{a} \rVert \cdot \lVert \vec{b} \rVert \cdot \cos{\theta} \\
+    (1, 1, 1) \cdot (3, 3, 3) &= \lVert (1, 1, 1)  \rVert \cdot \lVert (3, 3, 3)  \rVert \cdot \cos{\theta} \\
+    (1)(3) + (1)(3) + (1)(3)  &= \left[ \sqrt{1^2 + 1^2 + 1^2} \cdot \sqrt{3^2 + 3^2 + 3^2} \right] \cdot \cos{\theta} \\
+    9 &= 9 \cdot \cos{\theta} \\
+    \frac{9}{9} &= \cos{\theta} \\
+    \theta &= \cos^{-1}{1} \\
+    \theta &= 0 \text{\hspace{2mm} (radians)} \\
+    \theta &= 0 \cdot \frac{180}{\pi} \\
+    \theta &= 0 \text{\hspace{2mm} (degrees)}
+\end{aligned}
+$
+\hfill \break \hfill \break 
+
+
+\item
+$ \!
+\vec{a} = (-3, 4, 1)$ and $\vec{b} = (0, -5, -2) \\ 
+\text{Since $a$ or $b$ are non-zero vectors, then $\vec{a} \cdot \vec{b} &= \lVert \vec{a} \rVert \cdot \lVert \vec{b} \rVert \cdot \cos{\theta}$}
+\hfill \break\hfill \break 
+\begin{aligned}[t]
+    \vec{a} \cdot \vec{b} &= \lVert \vec{a} \rVert \cdot \lVert \vec{b} \rVert \cdot \cos{\theta} \\
+    (-3, 4, 1) \cdot (0, -5, -2) &= \lVert (-3, 4, 1) \rVert \cdot \lVert (0, -5, -2) \rVert \cdot \cos{\theta} \\
+    (-3)(0) + (4)(-5) + (1)(-2)  &= \left[ \sqrt{(-3)^2 + (4)^2 + (1)^2} \cdot \sqrt{(0)^2 + (-5)^2 + (-2)^2} \right] \cdot \cos{\theta} \\
+    -22 &= 27.45906043549196 \cdot \cos{\theta} \\
+    \frac{-22}{27.45906043549196} &= \cos{\theta} \\
+    \theta &= \cos^{-1}{\frac{-22}{27.45906043549196}} \\
+    \theta &= 2.5 \text{\hspace{2mm} (radians)} \\
+    \theta &= 2.5 \cdot \frac{180}{\pi} \\
+    \theta &= 143.24 \text{\hspace{2mm} (degrees)}
+\end{aligned}
+$
+\hfill \break \hfill \break 
+
+\end{enumerate}
+\end{enumerate}
+\clearpage
+\end{document}
