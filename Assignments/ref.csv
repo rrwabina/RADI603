@@ -1,0 +1,3 @@
+input,ouput
+abnormal ECG,Consult Cardio
+normal ECG,Do Nothing
