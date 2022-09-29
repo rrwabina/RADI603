@@ -3,6 +3,15 @@ y <- c(5, 9, 3)
 meany = mean(y)
 print(meany)
 
+a <- c('Kolkata','Rome','New York', 'London', 'Melbourne')
+b <- c(2,3,4,5)
+c <- matrix(list(1,"a", 1+2i, TRUE), 2, 2)
+d <- list(2, 'London', 'YES')
+print(a)
+print(b)
+print(c)
+
+
 emp.data <-data.frame(
   emp_id = c(1:5),
   emp_name = c("Rick","Dan","Michelle","Ryan","Gary"),
@@ -14,3 +23,5 @@ emp.data <-data.frame(
 )
 # Print the data frame.
 print(emp.data)
+
+list_data <- list("Red", "Green", c(21,32,11), TRUE, 51.23, 119.1)
