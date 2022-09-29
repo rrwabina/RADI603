@@ -32,6 +32,14 @@ emp.data <-data.frame(
 # Print the data frame.
 print(emp.data)
 df1 <- subset(emp.data, select = emp_id)
+a <- emp.data[1]
+print(a)
+b <- emp.data[1, ]
+print(b)
+c <- emp.data[3, ]
+print(c)
+d <- emp.data[, 1]
+print(d)
 
 list_data <- list("Red", "Green", c(21,32,11), TRUE, 51.23, 119.1)
 
@@ -52,6 +60,31 @@ emp.data1 <- data.frame(
 
 fahrenheit_to_celsius <- function(temp_F) {
   temp_C <- (temp_F-32) * 5 / 9
+  temp_C <- round(temp_C, 2)
   return(temp_C)
 }
 fahrenheit_to_celsius(90)
+
+celsius_to_fahrenheit <- function(temp_C) {
+  temp_F <- (temp_C) * (9 / 5) + 32
+  temp_F <- round(temp_F, 2)
+  return(temp_F)
+}
+
+
+dataCar = cars
+carReg <- lm(speed~dist, data=dataCar)
+
+aa <- emp.data[, 1:2]
+bb <- emp.data[1:2, ]
+
+
+
+# Statistical Functions in R
+# Descriptive statistics --> summary(), stem()
+
+irisData <- iris
+summary(irisData)
+plot(irisData$Sepal.Length, irisData$Sepal.Width)
+print(table(iris$Species))
+
