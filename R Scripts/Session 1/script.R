@@ -138,8 +138,6 @@ ggpairs(iris, title = "Scatterplot Matrix of the Features of the Iris Data Set")
 # Missing completely at random - the presence of missing values would not depend on the characteristics of the patient
 # Missing at random - depends on the characteristics of the observable data
 
-
-
 set.seed(11)
 indexR <- sample(1:nrow(colonData), 20, replace=T)
 indexC <- sample(1:ncol(colonData), 10, replace=T) 
@@ -174,7 +172,6 @@ head(dat)
 sapply(dat, function(x) sum(is.na(x)))
 
 
-s
 original <- dat
 set.seed(10)
 dat[sample(1:nrow(dat), 20), "Cholesterol"] <- NA
@@ -182,6 +179,11 @@ dat[sample(1:nrow(dat), 20), "Smoking"] <- NA
 dat[sample(1:nrow(dat), 20), "Education"] <- NA
 dat[sample(1:nrow(dat), 5), "Age"] <- NA
 dat[sample(1:nrow(dat), 5), "BMI"] <- NA
+# dat[sample(1:nrow(dat), 20), "Cholesterol"] <- 231.23
+# dat[sample(1:nrow(dat), 20), "Smoking"] <- 'Yes'
+# dat[sample(1:nrow(dat), 20), "Education"] <- 'High'
+# dat[sample(1:nrow(dat), 5), "Age"] <- 63.56
+# dat[sample(1:nrow(dat), 5), "BMI"] <- 56.87
 
 
 library(dplyr) 
@@ -191,3 +193,69 @@ dat <-dat %>%
   mutate(Education = as.factor(Education)) %>% 
   mutate(Cholesterol = as.numeric(Cholesterol))
 
+
+library(mice)
+init = mice(dat, maxit=0) 
+meth = init$method
+predM = init$predictorMatrix
+
+
+meth[c("Cholesterol")]="norm" 
+meth[c("Smoking")]="logreg" 
+meth[c("Education")]="polyreg"
+
+set.seed(103)
+library('Rcpp')
+
+###########################################################################
+data2 <- read.table("../data/imputeExample.csv", header = TRUE, sep=",")
+head(dat)
+set.seed(10)
+
+# Single Imputation with Mode
+data2 <- read.table("../data/imputeExample.csv", header = TRUE, sep=",")
+
+
+set.seed(11)
+indexR <- sample(1:nrow(data2), 20, replace=T)
+indexC <- sample(1:ncol(data2), 10, replace=T)
+data2Sample <- data2[indexR, indexC]
+indexR
+indexC
+data2Sample
+
+data2[sample(1:nrow(dat), 20), "Cholesterol"] <- NA
+data2[sample(1:nrow(dat), 20), "Smoking"] <- NA
+data2[sample(1:nrow(dat), 20), "Education"] <- NA
+data2[sample(1:nrow(dat), 5), "Age"] <- NA
+data2[sample(1:nrow(dat), 5), "BMI"] <- NA
+
+data2[,3] <- cut(data2[,3], breaks = 2, labels=c('1', '2'))
+data2[,3] <- as.numeric(data2[, 3])
+
+data2[,7] <- cut(data2[,7], breaks = 2, labels=c('1','2'))
+data2[,7] <- as.numeric(data2[, 7])
+
+data2[,8] <- cut(data2[,8], breaks = 3, labels=c['1','2','3'])
+data2[,8] <- as.numeric(data2[, 8])
+
+
+
+
+imputed <- data2
+val <- unique(data2$Smoking[!is.na(data2$Smoking)])
+my_mode <- val[which.max(tabulate(match(data2$Smoking, val)))]
+imputed$Smoking[is.na(imputed$Smoking)] <- my_mode
+
+sapply(data2, function(x) sum(is.na(x)))
+sapply(data2, function(x) typeof(x))
+data2
+
+
+data2[,7] <- cut(data2[,7], breaks = 2, labels=c('1','2'))
+data2[,8] <- cut(data2[,8], breaks = 3, labels=c['1','2','3'])
+
+data2 <-data2 %>%
+  mutate(Smoking = as.factor(Smoking)) %>% 
+  mutate(Education = as.factor(Education)) %>% 
+  mutate(Cholesterol = as.numeric(Cholesterol))
