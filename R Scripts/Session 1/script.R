@@ -139,3 +139,55 @@ ggpairs(iris, title = "Scatterplot Matrix of the Features of the Iris Data Set")
 # Missing at random - depends on the characteristics of the observable data
 
 
+
+set.seed(11)
+indexR <- sample(1:nrow(colonData), 20, replace=T)
+indexC <- sample(1:ncol(colonData), 10, replace=T) 
+colonSample <-colonData[indexR, indexC]
+indexR
+indexC
+colonSample
+
+colonSample[15,3] <- NA
+colonSample
+
+library(e1071)
+# Continuous variable ---> use mean imputation
+fixColonSample1 <- impute(colonSample[ , 1:10], what = 'mean')
+
+# Categorical variable ---> use mode or median imputation
+# Convert numeric to factor
+colonSample[,1] <- cut(colonSample[,1], breaks = 3, labels = c('1','2','3'))
+colonSample[,1] <-as.numeric(colonSample[,1])
+colonSample[15, 1] <- NA
+colonSample[ 2, 1] <- NA
+
+fixColonSample2 < - impute(colonSample[, 1:10], what = 'median')
+
+# Is there a degree of uncertainty provided by every data imputation techniques?
+# What is the impact of uncertainty from every data imputation techniques?
+
+dat <- read.table("../data/imputeExample.csv", header = TRUE, sep=",")
+head(dat)
+
+# Sum of all NULL values in every column in the dataframe
+sapply(dat, function(x) sum(is.na(x)))
+
+
+s
+original <- dat
+set.seed(10)
+dat[sample(1:nrow(dat), 20), "Cholesterol"] <- NA
+dat[sample(1:nrow(dat), 20), "Smoking"] <- NA
+dat[sample(1:nrow(dat), 20), "Education"] <- NA
+dat[sample(1:nrow(dat), 5), "Age"] <- NA
+dat[sample(1:nrow(dat), 5), "BMI"] <- NA
+
+
+library(dplyr) 
+# Transform the variables into factors or numeric 
+dat <-dat %>%
+  mutate(Smoking = as.factor(Smoking)) %>% 
+  mutate(Education = as.factor(Education)) %>% 
+  mutate(Cholesterol = as.numeric(Cholesterol))
+
