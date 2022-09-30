@@ -259,3 +259,153 @@ data2 <-data2 %>%
   mutate(Smoking = as.factor(Smoking)) %>% 
   mutate(Education = as.factor(Education)) %>% 
   mutate(Cholesterol = as.numeric(Cholesterol))
+
+
+# How to transform data
+scaleColonSample <- scale(fixColonSample1[, 1:10])
+segments <- 5
+maxL <- max(colonData$H62245)
+minL <- min(colonData$H62245)
+theBreaks <- seq(minL, maxL, by=(maxL-minL)/segments)
+cutPoints <- cut(colonData$H62245, breaks=theBreaks, include.lowest = T)
+newData   <- data.frame(original=colonData$H62245, myCut=cutPoints)
+head(newData)
+
+
+# Merging DataFrame in R
+# Perform left-join, right-join, inner-join 
+# Create a dataframe
+
+dataset1 <- data.frame(
+  brand = c('EROSE', 'Neuroplus'),
+  num_models = c(63, 10),
+  stringsAsFactors = FALSE
+)
+
+dataset2 <- data.frame(
+  brand = c('Virgo', 'Contec'),
+  num_models = c(26, 4),
+  stringsAsFactors = FALSE
+)
+
+# RBIND is the same as Python's CONCATENATION
+models <- rbind(dataset1, dataset2)
+models
+
+
+reordered_dataset1 <- dataset1[, c(2, 1)]
+reordered_dataset1
+dataset1
+
+rbind(reordered_dataset1, dataset2)
+
+
+sales <- data.frame(
+  brand = c("Virgo","Neuroplus","Contec","EROSE"), 
+  sales = c(19157, 25908, 188328, 29975),
+  stringsAsFactors = FALSE)
+
+models
+sales
+cbind(models, sales)
+
+
+# LEFT JOIN
+results <- merge(x = models, y = sales,by = "brand", all.x=TRUE)
+results
+
+
+
+salesTemp <-data.frame(
+  brand = c("Guangzhou","Hunan"), 
+  sales = c(500, 13467),
+  stringsAsFactors = FALSE)
+
+sales <- rbind(sales, salesTemp)
+
+resultsRightJoin <- merge(x = models, y = sales,by = "brand", all.y = TRUE)
+resultsRightJoin
+resultsLeftJoin  <- merge(x = sales, y = models, by = "brand", all.x = TRUE)
+resultsLeftJoin
+
+modelsTemp <-data.frame(
+  brand = c("Emotiv","NeuroSky"), 
+  num_models = c(15,9),
+  stringsAsFactors = FALSE)
+
+models <- rbind(models, modelsTemp)
+resultsInnerJoin <- merge(x = sales, y = models, by = "brand", all.x = FALSE, all.y = FALSE)
+resultsInnerJoin
+
+
+resultsFullJoin <- merge(x = models, y = sales, by = 'brand', all.x = TRUE, all.y = TRUE)
+resultsFullJoin
+
+
+resultsAssignmentA <- merge(x = models, y = sales, by = 'brand', all.x = FALSE, all.y = FALSE)
+resultsAssignmentA
+resultsAssignmentB <- merge(x = )
+
+
+### GROUP BY
+modelsTemp <-data.frame(
+  brand = c("Emotiv","NeuroSky"), 
+  num_models = c(33,16),
+  stringsAsFactors = FALSE)
+groupbyData <- rbind(models, modelsTemp)
+countGroup <- groupbyData %>%
+  count(brand)
+countGroup
+
+groupbyData %>%
+  group_by(brand) %>%
+  summarize(mean_num = mean(num_models))
+
+sumGroup <-groupbyData %>%
+  group_by(brand) %>%
+  summarise(total_num = sum(num_models))
+
+sumGroup
+
+df <-data.frame(
+  Weekday = factor(rep(c("Mon", "Tues", "Wed", "Thurs", "Fri"), each = 4),
+                   levels = c("Mon", "Tues", "Wed", "Thurs", "Fri")),
+  
+  Quarter = paste0("Q", rep(1:4, each = 5)),
+  
+  Delay = c(9.9, 5.4, 8.8, 6.9, 4.9, 9.7, 7.9, 5, 8.8, 11.1, 10.2, 9.3, 12.2,
+            10.2, 9.2, 9.7, 12.2, 8.1, 7.9, 5.6))
+
+
+countGroup <- df %>%
+  count(Quarter)
+countGroup
+
+
+groupByMinMax <- df %>%
+  group_by(Weekday) %>%
+  summarize(min_delay = min(Delay), max_delay = max(Delay))
+groupByMinMax
+
+groupBySum <- df %>%
+  group_by(Quarter) %>%
+  summarize(sum_delay = sum(Delay))
+groupBySum
+
+
+groupByQuarter <-df %>%
+  group_by(Quarter) %>%
+  summarize(min_delay = min(Delay), max_delay = max(Delay))
+groupByQuarter
+
+groupByAndCount1 <-df %>%
+  group_by(Weekday, Quarter) %>%
+  count()
+groupByQuarter
+
+
+groupByTwoColumn <- df %>%
+  group_by(Weekday) %>%
+  summarize(min_delay = min(Delay), max_delay = max(Delay), sum_delay = sum(Delay), mean_delay = mean(Delay)) 
+
+groupByTwoColumn
