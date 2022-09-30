@@ -409,3 +409,55 @@ groupByTwoColumn <- df %>%
   summarize(min_delay = min(Delay), max_delay = max(Delay), sum_delay = sum(Delay), mean_delay = mean(Delay)) 
 
 groupByTwoColumn
+
+
+remove1 <- resultsFullJoin[-c(7),]
+remove1
+remove2 <- resultsFullJoin[-c(2, 4)]
+remove2
+sapply(remove2, function(x) sum(is.na(x)))
+
+remove4 <- subset(resultsFullJoin, brand == 'Contec')
+remove4
+
+remove5 <- subset(resultsFullJoin, brand != "Contec" & sales >= 15000)
+remove5
+
+
+removeCol1 <- subset(resultsFullJoin, select = c(brand, sales))
+removeCol1
+
+dataset3 <-data.frame(
+  hn = c("121111","333333","444444","121111","444444","555555","888888","666666"), 
+  age = c(63,18,25,63,25,33,41,19),
+  sex = c("Male","Female","Female","Male","Female","Male","Male","Female"),
+  stringsAsFactors = FALSE
+)
+
+
+dataset3
+duplicate1 <- distinct(dataset3)
+duplicate1
+
+
+dataset4 <-data.frame(
+  glucose = c(90,101,112,89,110,95,99,100),
+  stringsAsFactors = FALSE
+)
+dataset5 <-cbind(dataset3, dataset4)
+dataset5
+duplicate2 <-distinct(dataset5, hn, age, .keep_all= TRUE)
+duplicate2
+
+
+duplicate4 <-unique(dataset3)
+duplicate4
+
+duplicate5 <- unique(dataset5)
+duplicate5
+
+duplicate7 <- dataset3[!duplicated(dataset3$hn),]
+duplicate7
+
+
+followUp <- data.frame()
