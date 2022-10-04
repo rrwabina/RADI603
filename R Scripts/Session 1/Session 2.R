@@ -1,13 +1,12 @@
 
 ################################################################################ Perceptron
+
 colonData <- read.table("../data/colon.csv", header = TRUE, sep= ",")
 x <- data.frame(colonData$H64807, colonData$T62947)
 y <- colonData$Class
-
-# No training and testing data?
-
 inweight1 <- rep(0, dim(x)[2] + 1)
 
+plot(x, y)
 perceptron <- function(x, y, inWeight, eta, niter) {
   weight <- inWeight
   errors <- rep(0, niter) 
@@ -38,12 +37,11 @@ perceptron <- function(x, y, inWeight, eta, niter) {
   return(errors)
 }
 
-err1 <- perceptron(x, y, inweight1, 0.0001, 50)
 
-
-plot(1:50, err1, type="l", lwd=2, col = "red", xlab = "epoch #", ylab = "errors")
+idx  <- 50
+err1 <- perceptron(x, y, inweight1, 1, 10)
+plot(1:10, err1, type = "l", lwd = 1, col = "red", xlab = "epoch #", ylab = "errors")
 title("Errors vs epoch - learning rate eta = 1")
-
 
 ################################################################################ Support Vector Machines
 
@@ -64,9 +62,6 @@ tune <- tune.svm(Sex~., data=catstrain, gamma=10^(-6:-1), cost=10^(1:4), tunecon
 summary(tune)
 
 help('tune.svm')
-
-
-
 
 library(e1071)
 library(MASS)
@@ -146,17 +141,3 @@ sapply(leukem, function(x) sum(is.na(x)))
 sapply(autism, function(x) typeof(x))
 View(autism)
 
-library(dplyr)
-autism_preprocessed <- autism %>%
-  mutate(A3.Score = as.numeric(A3.Score))
-
-remove.packages("rlang")
-remove.packages("dplyr")
-
-install.packages("rlang")
-install.packages("dplyr")
-
-library(rlang)
-library(dplyr)
-install.packages('lifecycle')
-install.packages('pillar')
