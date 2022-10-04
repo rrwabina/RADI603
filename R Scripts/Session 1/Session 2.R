@@ -7,28 +7,23 @@ y <- colonData$Class
 inweight1 <- rep(0, dim(x)[2] + 1)
 
 plot(x, y)
+
 perceptron <- function(x, y, inWeight, eta, niter) {
   weight <- inWeight
-  errors <- rep(0, niter) 
-  
-  # loop over number of iterations/epochs
-  for (jj in 1:niter) {           
-    # loop through the training set
+  errors <- rep(0, niter)
+  for (jj in 1:niter) { 
     for (ii in 1:length(y)) {
-      
-      # Heaviside activation function
-      # Binary labels
-      z <- sum(weight[2:length(weight)] * as.numeric(x[ii, ])) + weight[1]
-      
+      z <- sum(weight[2:length(weight)] * 
+                 as.numeric(x[ii, ])) + weight[1]
       if(z < 0) {
         ypred <- -1
-        } 
-      else {
-        ypred <-  1
-        }
-      weightdiff <- eta * (y[ii] - ypred) * c(1, as.numeric(x[ii, ])) # Loss function
+      } else {
+        ypred <-1
+      }
+      weightdiff <-eta * (y[ii] - ypred) * 
+        c(1, as.numeric(x[ii, ]))
       weight <- weight + weightdiff
-      if ((y[ii] - ypred) != 0.0) { # Update error function
+      if ((y[ii] - ypred) != 0.0) {
         errors[jj] <-errors[jj] + 1
       }
     }
@@ -37,12 +32,21 @@ perceptron <- function(x, y, inWeight, eta, niter) {
   return(errors)
 }
 
-
-idx  <- 50
 err1 <- perceptron(x, y, inweight1, 1, 10)
 plot(1:10, err1, type = "l", lwd = 1, col = "red", xlab = "epoch #", ylab = "errors")
 title("Errors vs epoch - learning rate eta = 1")
 
+
+inWeight2 <- data.frame(0, 2, 3)
+err2 <-perceptron(x, y, inWeight2, 0.25, 10)
+plot(1:10, err1, type="o", lwd=2, col="red", xlab="epoch #", ylab = "errors")
+lines(err2, type = "o", col = "blue")
+title("Errors vs epoch - learning rate eta = 0.25")
+
+### FINE-TUNING ###
+inWeight3 <- data.frame(2, 1, 0)
+err3 <-perceptron(x, y, inWeight3, 0.0001, 50)
+plot(1:50, err3, type="o", lwd=2, col = "red", xlab = "epoch #", ylab = "errors")
 ################################################################################ Support Vector Machines
 
 library(e1071)
@@ -51,10 +55,9 @@ data(cats)
 
 catstrain <- cats
 catstest  <- cats
-tune <- tune.svm(Sex~., data=catstrain, gamma=10^(-6:-1), cost=10^(1:4))
-
-model <- svm(Sex~., data=catstrain, method="C-classification", kernel="linear", probability=T, gamma=0.1, cost=10)
-prediction <-predict(model, catstest, probability=T)
+tune <- tune.svm(Sex~., data=catstrain, gamma=10^(-6:-1), cost=10^(1:4), tunecontrol = tune.control(cross = 5))
+model <- svm(Sex~., data=catstrain, method="C-classification", kernel="linear", probability=T, gamma = 0.1, cost=10)
+prediction <-predict(model, catstest, probability = T)
 table(catstest$Sex, prediction)
 plot(model, cats)
 
@@ -68,19 +71,37 @@ library(MASS)
 data(cats)
 catsData <-cats
 set.seed(224599)
-ind <- sample(2, nrow(catsData), replace=TRUE, prob=c(0.7, 0.3))
+ind <- sample(2, nrow(catsData), replace=TRUE, prob=c(0.6, 0.4))
 catstrain <- catsData[ind==1,]
 catstest  <- catsData[ind==2,]
-tune  <- tune.svm(Sex~., data=catstrain, gamma=10^(-6:-1), cost=10^(1:4))
+tune  <- tune.svm(Sex~., data=catstrain, gamma=10^(-6:-1), cost=10^(1:4), tunecontrol = tune.control(cross = 10))
 summary(tune)
-model <- svm(Sex~., data=catstrain, method="C-classification", kernel="linear", probability=T, gamma=0.1, cost=10)
-prediction <- predict(model, catstest, probability=T)
+model <- svm(Sex~., data=catstrain, method = "C-classification", kernel = "linear", probability=T, gamma=0.1, cost=100)
+prediction <- predict(model, catstest, probability = T)
 table(catstest$Sex, prediction)
-plot(model, cats)
+plot(model, catstest)
 
-
+help('svm')
 library(caret)
-# confusionMatrix(catstrain$Sex, predict(model))
+confusionMatrix(catstrain$Sex, predict(model))
+
+######################### Assignment 2
+colonData <- read.table("../data/colon.csv", header = TRUE, sep= ",")
+ind <- sample(2, nrow(colonData), replace=TRUE, prob=c(0.7, 0.3))
+colontrain <- colonData[ind == 1, ]
+colontest  <- colonData[ind == 2, ]
+tune  <- tune.svm(Class~., data=colontrain, gamma=10^(-5:-1), cost=10^(1:4), tunecontrol = tune.control(cross = 10))
+summary(tune)
+model <- svm(Class~., data=colontrain, method = "C-classification", kernel = "linear", probability=T, gamma=0.000001, cost=10)
+prediction <- predict(model, colontest, probability = T)
+table(colontest$Class, prediction)
+plot(model, colontrain)
+
+library(ggplot2) 
+
+
+
+
 
 set.seed(101)
 #get samples from iris data
@@ -141,3 +162,9 @@ sapply(leukem, function(x) sum(is.na(x)))
 sapply(autism, function(x) typeof(x))
 View(autism)
 
+library(ggplot2)
+install.packages('ggplot2')
+library()
+library(ggplotify)
+updateR()
+install.packages("tidyverse")
