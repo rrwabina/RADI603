@@ -132,3 +132,31 @@ maxidx <- function(arr){ return(which(arr == max(arr)))}
 idx <- apply(mypredict, c(1), maxidx)
 prediction <- c('Iris-setosa', 'Iris-versicolor', 'Iris-virginica')[idx]
 table(prediction, testData$Species)
+
+
+
+
+autism <- read.csv('../data/Autism-Adolescent-Data.csv')
+leukem <- read.csv('../data/leukemiaData.csv')
+library(ggplot2)
+library(GGally)
+sapply(autism, function(x) sum(is.na(x)))
+sapply(leukem, function(x) sum(is.na(x)))
+
+sapply(autism, function(x) typeof(x))
+View(autism)
+
+library(dplyr)
+autism_preprocessed <- autism %>%
+  mutate(A3.Score = as.numeric(A3.Score))
+
+remove.packages("rlang")
+remove.packages("dplyr")
+
+install.packages("rlang")
+install.packages("dplyr")
+
+library(rlang)
+library(dplyr)
+install.packages('lifecycle')
+install.packages('pillar')
