@@ -129,7 +129,7 @@ ind <- sample(2, nrow(irisNN), replace=TRUE, prob=c(0.7, 0.3))
 trainData <- irisNN[ind==1,]
 testData <- irisNN[ind==2,]
 nnet_iristrain <- trainData
-
+is.factor(nnet_iristrain$Species)
 #binarize the categorical output
 nnet_iristrain <- cbind(nnet_iristrain, trainData$Species == 'setosa')
 nnet_iristrain <- cbind(nnet_iristrain, trainData$Species == 'versicolor')
