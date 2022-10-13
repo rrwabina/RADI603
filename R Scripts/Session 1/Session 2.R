@@ -138,17 +138,17 @@ names(nnet_iristrain)[6:8] <- c('setosa', 'versicolor', 'virginica')
 
 nn <- neuralnet(setosa+versicolor+virginica ~
                   Sepal.Length+Sepal.Width+Petal.Length+Petal.Width,
-                  data=nnet_iristrain, hidden=c(3))
+                  data=nnet_iristrain, hidden=c(2))
 
-plot(nn)
 mypredict <- compute(nn, testData[-5])$net.result
-
+library(caret)
 #put multiple binary output to categorical output
 maxidx <- function(arr){ return(which(arr == max(arr)))}
 idx <- apply(mypredict, c(1), maxidx)
 prediction <- c('Iris-setosa', 'Iris-versicolor', 'Iris-virginica')[idx]
-table(prediction, testData$Species)
-
+u <- c('setosa', 'versicolor', 'virginica')
+xtab <- table(factor(prediction, u), factor(testData$Species, u))
+results <- confusionMatrix(xtab)
 
 
 
