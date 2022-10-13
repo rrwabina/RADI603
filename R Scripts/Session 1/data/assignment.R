@@ -14,6 +14,7 @@ library(neuralnet)
 library(spatstat)
 library(OpenImageR)
 library(raster)
+library(ROSE)
 
 setwd('C:/Users/Renan/Desktop/PhD Data Science/RADI 603/R Scripts/Session 1/data')
 df_autism <- read.csv('../data/Autism-Adolescent-Data.csv')
@@ -75,7 +76,13 @@ for (idx in 1:16)
   {
     df_autism[, idx] <- as.numeric(df_autism[, idx])
   }
-# df_autism$class <- as.integer(df_autism$class)
+
+########################## Please delete if oversampling is not required #############################
+# Check histogram
+hist(as.numeric(df_autism$class))
+prop.table(table(df_autism$class))
+table(df_autism_bal$class)
+df_autism <- ovun.sample(class ~ ., data = df_autism, method = 'over', N = 125)$data
 
 ######################################################################################################
 #### CLASSIFIER: SVM Binary Classification
@@ -86,7 +93,7 @@ autism_train <- as.data.frame(df_autism[idx==1,])
 autism_test  <- as.data.frame(df_autism[idx==2,])
 tune  <- tune.svm(class~., data = autism_train, gamma = 10^(-6:-1), cost = 10^(1:4), tunecontrol = tune.control(cross = 5))
 summary(tune)
-
+set.seed(224599)
 model <- svm(class~., data = autism_train, 
                       method = 'C-classification', 
                       kernel = 'polynomial', degree = 3, 
@@ -99,7 +106,7 @@ table(autism_test$class, prediction)
 confusionMatrix(autism_test$class, prediction)
 ######################################################################################################
 #### CLASSIFIER: KNN-AUTISM
-idx <- sample(2, nrow(df_autism), replace = TRUE, prob=c(0.7, 0.3))
+idx <- sample(2, nrow(df_autism), replace = TRUE, prob=c(0.75, 0.25))
 autism_train <- as.data.frame(df_autism[idx == 1,])
 autism_test  <- as.data.frame(df_autism[idx == 2,])
 
@@ -108,7 +115,7 @@ train_input  <- as.matrix(autism_train[, -16])
 train_output <- as.matrix(autism_train[,  17])
 test_input   <- as.matrix(autism_test[,  -16])
 
-prediction <-knn(train_input, test_input, train_output, k = 4)
+prediction <-knn(train_input, test_input, train_output, k = 3)
 xtab <- table(factor(prediction, levels = c(0, 1)), factor(autism_test$class, levels = c(0, 1)))
 results <- confusionMatrix(xtab)
 results
@@ -148,6 +155,7 @@ results <- confusionMatrix(xtab)
 as.matrix(results, what = 'overall')
 as.matrix(results, what = 'classes')
 
+roc.curve(autism_test$class, prediction, plotit = TRUE)
 
 #################################################### LEUKEMIA DATA SVM ###########################################################
 df_leukem <- read.csv('../data/leukemiaData.csv')
@@ -166,6 +174,7 @@ for (idx in 1:(ncol(df_leukem)-1))
   df_leukem[, idx] <- as.numeric(df_leukem[, idx])
 }
 df_leukem[, 1:(ncol(df_leukem)-1)] <- scale(df_leukem[, 1:(ncol(df_leukem)-1)])
+
 #### CLASSIFIER: SVM Multi-Classification
 set.seed(224599)
 idx <- sample(2, nrow(df_leukem), replace = TRUE, prob=c(0.7, 0.3))
@@ -174,13 +183,13 @@ leukem_test  <- as.data.frame(df_leukem[idx==2,])
 tune  <- tune.svm(Class~., data = leukem_train, gamma = 10^(-10:-1), cost = 10^(1:5), tunecontrol = tune.control(cross = 10))
 summary(tune)
 
-help(svm)
+set.seed(224599)
 model <- svm(Class~., data = leukem_train, 
              method = 'C-classification', 
-             kernel = 'polynomial', degree = 3,
+             kernel = 'polynomial', degree = 5,
              probability = T, 
-             gamma = 1e-05, 
-             cost = 1e+05)
+             gamma = 1e-01, 
+             cost  = 1e+05)
 
 prediction <- predict(model, leukem_test, probability = T)
 table(leukem_test$Class, prediction)
@@ -202,9 +211,9 @@ results
 as.matrix(results, what = "overall")
 as.matrix(results, what = "classes")
 
-#################################################### LEUKEMIA DATA ANN ###########################################################
-set.seed(152)
-idx <- sample(2, nrow(df_leukem), replace = TRUE, prob=c(0.8, 0.2))
+############################################# LEUKEMIA DATA ANN ###########################################################
+set.seed(1000)
+idx <- sample(2, nrow(df_leukem), replace = TRUE, prob=c(0.7, 0.3))
 leukem_train <- as.data.frame(df_leukem[idx==1,])
 leukem_test  <- as.data.frame(df_leukem[idx==2,])
 nnet_leukemtrain <- leukem_train
@@ -216,10 +225,11 @@ names(nnet_leukemtrain)[16:18] <- c('ALL', 'MLL', 'AML')
 
 cor(df_leukem[, 1:14], as.numeric(df_leukem[, 15]), method=c('pearson', 'kendall', 'spearman'))
 
+set.seed(1000)
 nn <- neuralnet(ALL + MLL + AML ~ 
                 g4  + g5  + g7 + g8 + g10 + g12,
-                rep = 100, data = nnet_leukemtrain, hidden=c(3),
-                learningrate = NULL, act.fct = 'softplus')
+                data = nnet_leukemtrain, hidden = c(3),
+                act.fct  = 'logistic', linear.output = FALSE)
 help(neuralnet)
 mypredict <- compute(nn, leukem_test[-14])$net.result
 maxidx <- function(arr){ 
@@ -230,6 +240,7 @@ prediction <- c(0, 1, 2)[idx]
 u <- union(prediction, leukem_test$Class)
 xtab <- table(factor(prediction, u), factor(leukem_test$Class, u))
 results <- confusionMatrix(xtab)
+results
 as.matrix(results, what = 'overall')
 as.matrix(results, what = 'classes')
 
@@ -303,7 +314,7 @@ xray1 <- image_read('../data/datatwo/x-ray01.jpg', density = NULL, depth = NULL,
 
 img_path = '../data/datatwo/x-ray01.jpg'
 image1 = readImage(img_path) 
-
+library(tensorflow)
 augmentation_generator <- flow_images_from_data(
   image1, 
   generator = datagen,
