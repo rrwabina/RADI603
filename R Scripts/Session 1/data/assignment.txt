@@ -1,0 +1,55 @@
+
+
+It is strongly discouraged to adopt K-Nearest Neighbors (KNN) for the autism data. The KNN may be computationally expensive as the number of feature increases, since it requires the calculation of the distance for each feature, where we have to compute the input points, with every single point, perform sorting, and then get the majority class from the n-th nearest neighbor. In addition, the autism data consists of several categorical features, e.g., gender and scores. These variables can increase the resulting false negatives since KNN cannot work with categorical features because it is computational expensive to solve distance formulas for categorical features. 
+
+The given autism data follows a non-linearity trend. Therefore, Support Vector Machines (SVM) may work well with autism data since it utilizes non-linearity kernels (i.e., polynomial) to construct non-linear decisions boundaries. However, its computational cost is expensive since it requires fine-tuning the parameter C (penalty parameter of the error term), which often takes time to simulate. In addition, while autism data is only low-dimensional (i.e., 104 x 17), high-dimensional data may not work very well with SVM due to curse of dimensionality - that is, the number of unique rows grows exponentially as the number of features increases, which makes it so much harder for SVM to efficiently generalize.
+
+The Artificial Neural Networks (ANNs), similar to SVM, can also work well with the autism data since it can embed non-linearity through non-linear activation functions (i.e., ReLU). Both ANN and SVM can classify the autism data with comparable accuracy since both models are parametric and utilizes optimization algorithms to train the data, i.e., quadratic programming for SVM and gradient descent for ANNs. However, the computational power required for ANNs are higher compared to SVMs, which provides longer training time for ANN. This is because the decision hyperplane in SVM is guaranteed to be located between support vectors belonging to different classes. The ANNs, on one hand, don’t offer this guarantee and, instead, position the initial decision function randomly, which may produce false negative predictions. 
+
+Results from model training have shown that ANN's accuracy is relatively higher compared to SVM. Surprisingly, both ANN and SVM yielded perfect sensitivity (100%) for autism data, such that sensitivity is a suitable metric for disease detection tasks to minimize false negatives. However, SVMs are preferrable than ANNs for low-dimensional datasets (i.e., autism data) due to SVM's curse of dimensionality problem. Therefore, in summary, it is recommended to use SVMs for autism data. The ANNs, on the other hand, is preferrable for high-dimensional data than SVMs, despite the comparable accuracy of both models.  
+
+
+
+
+
+
+
+
+True Positive (TP)
+- $ TP_{S}  = P_{SS}   = 10 $
+- $ TP_{Ve} = P_{VeVe} = 10 $
+- $ TP_{Vi} = P_{ViVi} = 13 $
+
+True Negative (TN)
+- $ TN_{S}  = P_{VeVe} + P_{VeVi} + P_{ViVe} + P_{ViVi} = 10 + 1 + 0 + 13 = 24$
+- $ TN_{Ve} = P_{SS} + P_{SVi} + P_{ViS} + P_{ViVi} = 10 + 0 + 0 + 13 = 23$
+- $ TN_{Vi} = P_{SS} + P_{SVe} + P_{VeS} + P_{VeVe} = 10 + 0 + 0 + 10 = 20$
+
+False Positive (FP) 
+- $FP_{S}  = P_{SVe} + P_{SVi}  = 0 + 0 = 0$
+- $FP_{Ve} = P_{VeS} + P_{VeVi} = 0 + 1 = 1$
+- $FP_{Vi} = P_{ViS} + P_{ViVe} = 0 + 0 = 0$
+
+False Negative (FN) 
+- $ FN_{S}  = P_{VeS} + P_{ViS}  = 0 + 0 = 0 $ 
+- $ FN_{Ve} = P_{SVe} + P_{ViVe} = 0 + 0 = 0 $ 
+- $ FN_{Vi} = P_{SVi} + P_{VeVi} = 0 + 1 = 1 $
+
+
+
+Precision
+**Advantage: Precision is a good measure if the impact of False Positives must be minimized. This metric can also determine if the classification model returns more relevant results than irrelevant ones. In addition, precision would be the best metric to use if you want to determine the correctness of your model.** <br>
+**Disadvantage: Precision may not be applicable to classification tasks if the impact of False Negatives are minimized**
+
+
+
+
+
+
+
+
+
+
+
+
+

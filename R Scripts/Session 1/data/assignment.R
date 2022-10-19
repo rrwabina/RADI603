@@ -9,12 +9,14 @@ library(class)
 library(lpSolve)
 library(magick)
 library(tensorflow)
-library(keras)
 library(neuralnet)
 library(spatstat)
 library(OpenImageR)
 library(raster)
 library(ROSE)
+library(SpatialPack)
+library(devtools)
+library(tibble)
 
 setwd('C:/Users/Renan/Desktop/PhD Data Science/RADI 603/R Scripts/Session 1/data')
 df_autism <- read.csv('../data/Autism-Adolescent-Data.csv')
@@ -81,32 +83,36 @@ for (idx in 1:16)
 # Check histogram
 hist(as.numeric(df_autism$class))
 prop.table(table(df_autism$class))
-table(df_autism_bal$class)
+table(df_autism$class)
 df_autism <- ovun.sample(class ~ ., data = df_autism, method = 'over', N = 125)$data
 
 ######################################################################################################
 #### CLASSIFIER: SVM Binary Classification
-set.seed(224599)
+# I added manual seeding in data splitting to provide the same results when running the model
+# Users may opt to delete the seeding
+set.seed(224599) 
 df_autism[1:16] <- scale(df_autism[1:16])
 idx <- sample(2, nrow(df_autism), replace = TRUE, prob=c(0.75, 0.25))
 autism_train <- as.data.frame(df_autism[idx==1,])
 autism_test  <- as.data.frame(df_autism[idx==2,])
-tune  <- tune.svm(class~., data = autism_train, gamma = 10^(-6:-1), cost = 10^(1:4), tunecontrol = tune.control(cross = 5))
-summary(tune)
+tune  <- tune.svm(class~., data = autism_train, gamma = 10^(-6:-1), cost = 10^(1:4), tunecontrol = tune.control(cross = 10))
+
 set.seed(224599)
+# Building the SVM classifier
 model <- svm(class~., data = autism_train, 
-                      method = 'C-classification', 
-                      kernel = 'polynomial', degree = 3, 
-                      probability = T, 
-                      gamma = 1e-02, 
-                      cost = 1000)
+             method = 'C-classification', 
+             kernel = 'polynomial', degree = 3, 
+             probability = T, 
+             gamma = 1e-02, 
+             cost = 1000)
 
 prediction <- predict(model, autism_test, probability = T)
-table(autism_test$class, prediction)
+# table(autism_test$class, prediction)
 confusionMatrix(autism_test$class, prediction)
 ######################################################################################################
 #### CLASSIFIER: KNN-AUTISM
-idx <- sample(2, nrow(df_autism), replace = TRUE, prob=c(0.75, 0.25))
+set.seed(10000)
+idx <- sample(2, nrow(df_autism), replace = TRUE, prob=c(0.75, 0.35))
 autism_train <- as.data.frame(df_autism[idx == 1,])
 autism_test  <- as.data.frame(df_autism[idx == 2,])
 
@@ -115,12 +121,16 @@ train_input  <- as.matrix(autism_train[, -16])
 train_output <- as.matrix(autism_train[,  17])
 test_input   <- as.matrix(autism_test[,  -16])
 
+# Building the KNN classifier
+set.seed(10000)
 prediction <-knn(train_input, test_input, train_output, k = 3)
 xtab <- table(factor(prediction, levels = c(0, 1)), factor(autism_test$class, levels = c(0, 1)))
 results <- confusionMatrix(xtab)
 results
-as.matrix(results, what = "overall")
-as.matrix(results, what = "classes")
+
+# You may uncomment the following scripts to see other performance indicators
+# as.matrix(results, what = "overall")
+# as.matrix(results, what = "classes")
 ######################################################################################################
 #### CLASSIFIER: ANN-AUTISM
 
@@ -134,13 +144,17 @@ nnet_autismtrain <- cbind(nnet_autismtrain, autism_train$class == 0)
 nnet_autismtrain <- cbind(nnet_autismtrain, autism_train$class == 1)
 names(nnet_autismtrain)[18:19] <- c('NO', 'YES')
 
-cor(df_autism[, 1:16], as.numeric(df_autism[, 17]), method=c('pearson', 'kendall', 'spearman'))
+# The script cor(df) performs correlation matrix in the given dataset
+# cor(df_autism[, 1:16], as.numeric(df_autism[, 17]), method=c('pearson', 'kendall', 'spearman'))
 
+# Building the ANN classifier
 nn <- neuralnet(NO + YES ~ 
-                A3.Score + A4.Score + A5.Score + A6.Score  + 
-                A7.Score + A8.Score + A9.Score + A10.Score + used,
+                  A3.Score + A4.Score + A5.Score + A6.Score  + 
+                  A7.Score + A8.Score + A9.Score + A10.Score + used,
                 data = nnet_autismtrain, hidden=c(4))
-plot(nn)
+
+# You may uncomment the following code to view neural net plot
+# plot(nn)
 
 mypredict <- compute(nn, autism_test[-16])$net.result
 maxidx <- function(arr){ 
@@ -152,68 +166,82 @@ prediction <- c(0, 1)[idx]
 u <- union(prediction, autism_test$class)
 xtab <- table(factor(prediction, u), factor(autism_test$class, u))
 results <- confusionMatrix(xtab)
-as.matrix(results, what = 'overall')
-as.matrix(results, what = 'classes')
+results
 
-roc.curve(autism_test$class, prediction, plotit = TRUE)
+# You may uncomment the following scripts to see other performance indicators
+# as.matrix(results, what = 'overall')
+# as.matrix(results, what = 'classes')
 
-#################################################### LEUKEMIA DATA SVM ###########################################################
+# You may uncomment the following script to see the ROC curve
+# roc.curve(autism_test$class, prediction, plotit = TRUE)
+#################################################### LEUKEMIA DATA PROCESS ###################################################
 df_leukem <- read.csv('../data/leukemiaData.csv')
 
-sapply(df_leukem, function(x) sum(is.na(x)))
-sapply(df_leukem, function(x) typeof(x))
-sapply(df_leukem, function(x) unique(x))
-sapply(df_leukem, function(x) is.numeric(x))
 
-df_leukem$Class = factor(df_leukem$Class,
-                         levels = c('ALL', 'MLL', 'AML'),
-                         labels = c(0, 1, 2))
+df_leukem$Class = factor(df_leukem$Class, levels = c('ALL', 'MLL', 'AML'), labels = c(0, 1, 2))
 
 for (idx in 1:(ncol(df_leukem)-1))
-{
-  df_leukem[, idx] <- as.numeric(df_leukem[, idx])
-}
-df_leukem[, 1:(ncol(df_leukem)-1)] <- scale(df_leukem[, 1:(ncol(df_leukem)-1)])
+{df_leukem[, idx] <- as.numeric(df_leukem[, idx])}
+df_leukem[, 1:(ncol(df_leukem)-1)] <- scale(df_leukem[, 1:(ncol(df_leukem)-1)], center = TRUE, scale  = TRUE)
 
-#### CLASSIFIER: SVM Multi-Classification
-set.seed(224599)
+# Check correlation between features and target
+correlation <- cor(df_leukem[, 1:14], as.numeric(df_leukem[, 15]), method=c('pearson', 'kendall', 'spearman'))
+#################################################### LEUKEMIA DATA SVM ###########################################################
+set.seed(3407)
 idx <- sample(2, nrow(df_leukem), replace = TRUE, prob=c(0.7, 0.3))
-leukem_train <- as.data.frame(df_leukem[idx==1,])
-leukem_test  <- as.data.frame(df_leukem[idx==2,])
-tune  <- tune.svm(Class~., data = leukem_train, gamma = 10^(-10:-1), cost = 10^(1:5), tunecontrol = tune.control(cross = 10))
+
+
+df_leukem_svm <- df_leukem[c('g4', 'g5', 'g7', 'g8', 'g10', 'g12', 'Class')]
+leukem_train <- as.data.frame(df_leukem_svm[idx==1,])
+leukem_test  <- as.data.frame(df_leukem_svm[idx==2,])
+tune  <- tune.svm(Class~., data = leukem_train, 
+                  gamma = 10^(-10:-1), 
+                  cost  = 10^(1:5), 
+                  tunecontrol = tune.control(cross = 10))
+
+
 summary(tune)
 
-set.seed(224599)
+set.seed(3407)
 model <- svm(Class~., data = leukem_train, 
-             method = 'C-classification', 
-             kernel = 'polynomial', degree = 5,
+             method = 'C-classification', scale = FALSE,
+             kernel = 'radial',
              probability = T, 
-             gamma = 1e-01, 
-             cost  = 1e+05)
+             gamma = 1e-03, 
+             cost  = 1e+01)
 
 prediction <- predict(model, leukem_test, probability = T)
-table(leukem_test$Class, prediction)
-confusionMatrix(leukem_test$Class, prediction)
+xtab <- table(leukem_test$Class, prediction)
+confusionMatrix(xtab)
+
 
 #################################################### LEUKEMIA DATA KNN ###########################################################
-idx <- sample(2, nrow(df_leukem), replace = TRUE, prob=c(0.6, 0.4))
-leukem_train <- as.data.frame(df_leukem[idx==1,])
-leukem_test  <- as.data.frame(df_leukem[idx==2,])
-train_input  <- as.matrix(leukem_train[, -15])
-train_output <- as.matrix(leukem_train[,  15])
-test_input   <- as.matrix(leukem_test[,  -15])
+set.seed(3407)
+idx <- sample(2, nrow(df_leukem), replace = TRUE, prob = c(0.70, 0.30))
 
-help(knn)
-prediction <- knn(train_input, test_input, train_output, k = 5)
+df_leukem_knn <- df_leukem[c('g4', 'g5', 'g7', 'g8', 'g10', 'g12', 'Class')]
+
+leukem_train <- as.data.frame(df_leukem_knn[idx == 1,])
+leukem_test  <- as.data.frame(df_leukem_knn[idx == 2,])
+train_input  <- as.matrix(leukem_train[, -7])
+train_output <- as.matrix(leukem_train[,  7])
+test_input   <- as.matrix(leukem_test[,  -7])
+
+set.seed(3407)
+prediction <- knn(train_input, test_input, train_output, k = 29)
 xtab <- table(prediction, leukem_test$Class)
 results <- confusionMatrix(xtab)
 results
-as.matrix(results, what = "overall")
-as.matrix(results, what = "classes")
 
+
+as.matrix(results, what = 'overall')
+as.matrix(results, what = 'classes')
+
+roc.curve(factor(leukem_test$Class, levels = c(0, 1)), 
+           factor(prediction, levels = c(0, 1)), plotit = TRUE)
 ############################################# LEUKEMIA DATA ANN ###########################################################
 set.seed(1000)
-idx <- sample(2, nrow(df_leukem), replace = TRUE, prob=c(0.7, 0.3))
+idx <- sample(2, nrow(df_leukem), replace = TRUE, prob = c(0.7, 0.3))
 leukem_train <- as.data.frame(df_leukem[idx==1,])
 leukem_test  <- as.data.frame(df_leukem[idx==2,])
 nnet_leukemtrain <- leukem_train
@@ -221,16 +249,17 @@ nnet_leukemtrain <- leukem_train
 nnet_leukemtrain <- cbind(nnet_leukemtrain, leukem_train$Class == 0)
 nnet_leukemtrain <- cbind(nnet_leukemtrain, leukem_train$Class == 1)
 nnet_leukemtrain <- cbind(nnet_leukemtrain, leukem_train$Class == 2)
+
 names(nnet_leukemtrain)[16:18] <- c('ALL', 'MLL', 'AML')
 
 cor(df_leukem[, 1:14], as.numeric(df_leukem[, 15]), method=c('pearson', 'kendall', 'spearman'))
 
 set.seed(1000)
 nn <- neuralnet(ALL + MLL + AML ~ 
-                g4  + g5  + g7 + g8 + g10 + g12,
-                data = nnet_leukemtrain, hidden = c(3),
+                  g4  + g5  + g7 + g8 + g10 + g12,
+                data = nnet_leukemtrain, hidden = c(3), algorithm = 'rprop+',
                 act.fct  = 'logistic', linear.output = FALSE)
-help(neuralnet)
+
 mypredict <- compute(nn, leukem_test[-14])$net.result
 maxidx <- function(arr){ 
   return(which(arr == max(arr)))
@@ -241,82 +270,225 @@ u <- union(prediction, leukem_test$Class)
 xtab <- table(factor(prediction, u), factor(leukem_test$Class, u))
 results <- confusionMatrix(xtab)
 results
+
 as.matrix(results, what = 'overall')
 as.matrix(results, what = 'classes')
 
 #################################################### LINEAR PROGRAMMING ###########################################################
-objective.in <- c(500, 200, 300, 800)
-const.mat  <- matrix(c(400, 200, 150, 500, 3, 2, 0, 0, 2, 2, 4, 4, 2, 4, 1, 5), nrow = 4, byrow = TRUE)
-const_cal  <-  500 
-const_prot <- 6  # in grams
-const_carb <- 10 # in grams
-const_fat  <-  8  # in grams
-const.rhs  <- c(const_cal, const_prot, const_carb, const_fat)
-const.dir  <- c(">=", ">=", ">=", ">=")
-opt <- lp(direction = "min", objective.in , const.mat, const.dir, const.rhs)
-summary(opt)
-opt$solution
-opt$objval
+f.objective   <- c(500, 200, 300, 800)
+f.constraints <- matrix(c(  400, 200, 150, 500, 
+                            3,   2,   0,   0, 
+                            2,   2,   4,   4, 
+                            2,   4,   1,   5), nrow = 4, byrow = TRUE)
 
-## As we see for our optimum solution means diet with minimum cost 
-## Ajarn should have 0 units of Food1, 3 units of Food2, 1 unit of Food3 and 0 units of Food4. 
-## The cost of diet will be 900B and this diet will provide him at least 500 calories, 6 grams of protein, 10 grams of carbohydrates and 8 grams of fat.
+calories      <- 500 
+protein       <- 6  
+carbohydrates <- 10 
+fat           <- 8  
+
+# Right-hand side of the LP constraints
+f.rhs         <- c(calories, protein, carbohydrates, fat)
+f.dir         <- c('>=', '>=', '>=', '>=')
+optimal       <- lp(direction = 'min', f.objective, f.constraints, f.dir , f.rhs)
+
+# summary(opt)
+optimal$solution
+optimal$objval
 
 ################################################## IMAGE FILES AUGMENTATION #######################################################
 
-xray1 <- image_read('../data/datatwo/x-ray01.jpg', density = NULL, depth = NULL, strip = FALSE)
-image_info(xray1)
-image_convert(xray1, format = 'png', depth = NULL)
+get_width <- function(image) {
+  width  <- image_info(image)[2]
+  width  <- width %>% getElement('width')
+  return (width)
+}
+
+get_height <- function(image) {
+  height <- image_info(image)[3]
+  height <- height %>% getElement('height')
+  return (height)
+}
+
+crop_image <- function(image, location, idx) 
+{
+  randomA = sample(100:200, 1)
+  randomB = sample(100:200, 1)
+  image <- image_crop(image, paste(as.character(randomA),
+                                   'x',
+                                   as.character(randomB), 
+                                   sep = ''))
+  loc = location
+  path = paste(as.character(idx), 'crop.png', sep = '')
+  png(file   = paste(loc, path),
+      width  = get_width(image) + 50, 
+      height = get_height(image)+ 50, 
+      units = 'px', bg = 'transparent')
+  plot(image)
+  dev.off()
+}
 
 
-image_trim(xray1)
-image_crop(xray1,  '100x100')
-
-image_scale(xray1, 'x500')
-image_scale(xray1, 'x100')
-image_scale(xray1, 'x50')
-
-image_rotate(xray1, 45)
-image_rotate(xray1, 90)
-
-image_modulate(xray1, brightness = 20, saturation = 120, hue = 90)
-image_modulate(xray1, brightness = 50, saturation = 120, hue = 90)
-
-my_raster <- as.raster(xray1) 
-par(mar = c(0, 0, 0, 0))
-plot(my_raster[1:125, 1:102])
+scale_image <- function(image, location, idx) 
+{
+  image <- image_scale(image, sample(200:500, 1))
+  loc  = location 
+  path = paste(as.character(idx), 'scale.png', sep = '')
+  png(file   = paste(loc, path), 
+      width  = get_width(image), 
+      height = get_height(image), 
+      units  = 'px', bg = 'transparent')
+  plot(image)
+  dev.off()
+}
 
 
-image_fill(xray1, 'blue', point = '+100+200', fuzz = 30)
+rotate_image <- function(image, location, idx) { 
+  image <- image_rotate(image, sample(0:180, 1))
+  loc  = location 
+  path = paste(as.character(idx), 'rotate.png', sep = '')
+  png(file = paste(loc, path), 
+      width  = get_width(image), 
+      height = get_height(image), 
+      units = 'px', bg = 'transparent')
+  plot(image)
+  dev.off()
+}
 
-image_border(image_background(xray1, 'hotpink'), "#000350", '10x10')
-image_annotate(
-  xray1, text = 'X-ray 1', size = 30, color = "blue",
-  gravity = 'center')
-image_annotate(
-  xray1, text = ' X-ray 1 ', size = 30,
-  color = 'red', boxcolor = 'white',
-  degrees = 0, location = '+50+100',
-  font = 'Arial')
 
+modulate_image <- function(image, location, idx) 
+{
+  image <- image_modulate(image, brightness = sample(5:200, 1), 
+                          saturation = sample(1:100, 1), 
+                          hue = sample(1:100, 1))
+  loc  = location
+  path = paste(as.character(idx), 'modulate.png', sep = '')
+  png(file = paste(loc, path), 
+      width  = get_width(image), 
+      height = get_height(image), 
+      units = 'px', bg = 'transparent')
+  plot(image)
+  dev.off()
+}
 
-datagen <- image_data_generator(
-  rescale = 1/255,
-  rotation_range = 40,
-  width_shift_range = 0.2,
-  height_shift_range = 0.2,
-  shear_range = 0.2,
-  zoom_range = 0.2,
-  horizontal_flip = TRUE,
-  fill_mode = "nearest"
-)
-xray1 <- image_read('../data/datatwo/x-ray01.jpg', density = NULL, depth = NULL, strip = FALSE)
+colorize_image <- function(image, location, idx)
+{
+  image <- image_colorize(image, opacity = sample(10:50, 1),
+                          color = sample(c('blue', 'red', 'yellow', 'green'), 1))
+  loc  = location
+  path = paste(as.character(idx), 'colorize.png', sep = '')
+  png(file   = paste(loc, path), 
+      width  = get_width(image), 
+      height = get_height(image), 
+      units = 'px', bg = 'transparent')
+  plot(image)
+  dev.off()
+}
 
-img_path = '../data/datatwo/x-ray01.jpg'
-image1 = readImage(img_path) 
-library(tensorflow)
-augmentation_generator <- flow_images_from_data(
-  image1, 
-  generator = datagen,
-  batch_size = 1
-)
+contrast_image <- function(image, location, idx) 
+{
+  image <- image_contrast(image, sharpen = sample(1:200, 1))
+  loc  = location
+  path = paste(as.character(idx), 'contrast.png', sep = '')
+  png(file   = paste(loc, path), 
+      width  = get_width(image), 
+      height = get_height(image), 
+      units = 'px', bg = 'transparent')
+  plot(image)
+  dev.off()
+}
+
+gaussianblur_image <- function(image, location, idx)
+{
+  image <- image %>% image_convolve('Gaussian:0x5', scaling = '70, 30%')
+  loc  = location
+  path = paste(as.character(idx), 'gaussian.png', sep = '')
+  png(file   = paste(loc, path), 
+      width  = get_width(image), 
+      height = get_height(image), 
+      units = 'px', bg = 'transparent')
+  plot(image)
+  dev.off()
+}
+
+edge_image <- function(image, location, idx)
+{
+  image <- image %>% image_convolve('Sobel') %>% image_negate()
+  loc  = location
+  path = paste(as.character(idx), 'edge.png', sep = '')
+  png(file   = paste(loc, path), 
+      width  = get_width(image), 
+      height = get_height(image), 
+      units = 'px', bg = 'transparent')
+  plot(image)
+  dev.off()
+}
+
+sobelscale_image <- function(image, location, idx)
+{
+  image <- image %>% image_convolve('Sobel', 
+                                    scaling = sample(0:5, 1), 
+                                    bias = sample(0:5, 1))
+  loc  = location
+  path = paste(as.character(idx), 'sobelscale.png', sep = '')
+  png(file   = paste(loc, path), 
+      width  = get_width(image), 
+      height = get_height(image), 
+      units = 'px', bg = 'transparent')
+  plot(image)
+  dev.off()
+}
+
+medianblur_image <- function(image, location, idx)
+{
+  image <- image_median(image, radius = sample(1:10, 1))
+  loc  = location
+  path = paste(as.character(idx), 'medianblur.png', sep = '')
+  png(file   = paste(loc, path), 
+      width  = get_width(image), 
+      height = get_height(image), 
+      units = 'px', bg = 'transparent')
+  plot(image)
+  dev.off()
+}
+
+negate_image <- function(image, location, idx)
+{
+  image <- image %>% image_convolve('Sobel') %>% image_negate()
+  loc  = location
+  path = paste(as.character(idx), 'negate.png', sep = '')
+  png(file   = paste(loc, path), 
+      width  = get_width(image), 
+      height = get_height(image), 
+      units = 'px', bg = 'transparent')
+  plot(image)
+  dev.off()
+}
+
+main <- function(image, location) {
+  for (idx in 1:2)
+  {
+    scale_image(image, location, idx)
+    rotate_image(image, location, idx)
+    crop_image(image, location, idx)
+    modulate_image(image, location, idx)
+    colorize_image(image, location, idx)
+    contrast_image(image, location, idx)
+    gaussianblur_image(image, location, idx)
+    edge_image(image, location, idx)
+    sobelscale_image(image, location, idx)
+    medianblur_image(image, location, idx)
+    negate_image(image, location, idx)
+  }
+}
+
+image <- image_read('../data/datatwo/x-ray01.jpg', density = NULL, depth = NULL, strip = FALSE)
+location = '../data/xrays/xray1/'
+main(image, location)
+
+image <- image_read('../data/datatwo/x-ray02.jpg', density = NULL, depth = NULL, strip = FALSE)
+location = '../data/xrays/xray2/'
+main(image, location)
+
+image <- image_read('../data/datatwo/x-ray03.jpg', density = NULL, depth = NULL, strip = FALSE)
+location = '../data/xrays/xray3/'
+main(image, location)
